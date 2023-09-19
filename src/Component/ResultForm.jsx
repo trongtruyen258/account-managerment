@@ -1,19 +1,15 @@
 import { Table } from "reactstrap";
-import { listAccount, listDepartment, listPosition } from "./Data";
-import { useState } from "react";
 import ButtonComponent from "./ButtonComponent";
-import swal from "sweetalert";
 
 export default function ResultForm(props) {
-  const { toggle } = props;
-
-  const [accounts, setAccounts] = useState(listAccount);
-  const handleData = (accounts) => {
-    setAccounts(accounts);
+  const { listDepartment, listPosition, listAccount, handleClickEdit } = props;
+  const handleDelete = (id) => {
+    props.sendDataToParent(id);
   };
+
   return (
     <Table responsive>
-      <thead>
+      <thead style={{ textAlign: "center" }}>
         <tr>
           <th>ID</th>
           <th>Email</th>
@@ -27,7 +23,7 @@ export default function ResultForm(props) {
         </tr>
       </thead>
       <tbody>
-        {accounts.map((account) => {
+        {listAccount.map((account) => {
           return (
             <tr key={account.id}>
               <td>{account.id}</td>
@@ -37,14 +33,14 @@ export default function ResultForm(props) {
               <td>
                 {
                   listDepartment.find((department) => {
-                    return account.departmentId === department.id;
+                    return +account.departmentId === department.id;
                   })?.name
                 }
               </td>
               <td>
                 {
                   listPosition.find((position) => {
-                    return account.positionId === position.id;
+                    return +account.positionId === position.id;
                   })?.name
                 }
               </td>
@@ -53,14 +49,14 @@ export default function ResultForm(props) {
                 <ButtonComponent
                   name="Edit"
                   color="warning"
-                  handleClick={() => toggle("Edit")}
+                  handleClick={() => handleClickEdit(account)}
                 />
               </td>
               <td>
-                <ButtonDelete
-                  id={account.id}
-                  sendData={handleData}
-                  accounts={accounts}
+                <ButtonComponent
+                  name="Delete"
+                  color="warning"
+                  handleClick={() => handleDelete(account.id)}
                 />
               </td>
             </tr>
@@ -68,31 +64,5 @@ export default function ResultForm(props) {
         })}
       </tbody>
     </Table>
-  );
-}
-function ButtonDelete(props) {
-  const sendData = () => {
-    swal({
-      title: "Are you sure?",
-      text: "Once deleted, you will not be able to recover this account!",
-      icon: "warning",
-      buttons: true,
-      dangerMode: true,
-    }).then((willDelete) => {
-      if (willDelete) {
-        let accounts = props.accounts.filter((account) => {
-          return account.id !== props.id;
-        });
-        props.sendData(accounts);
-        swal("Poof! This account has been deleted!", {
-          icon: "success",
-        });
-      } else {
-        swal("This account is safe!");
-      }
-    });
-  };
-  return (
-    <ButtonComponent name="Delete" color="warning" handleClick={sendData} />
   );
 }
