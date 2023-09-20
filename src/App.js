@@ -5,7 +5,7 @@ import Account from "./pages/Account";
 function App() {
   return (
     <div>
-      <Account />;
+      <Account />
     </div>
   );
 }

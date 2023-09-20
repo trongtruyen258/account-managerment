@@ -2,15 +2,20 @@ import { Col, Container, Row } from "reactstrap";
 import ResultForm from "../Component/ResultForm";
 import ButtonComponent from "../Component/ButtonComponent";
 import ModalComponent from "../Component/ModalComponent";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import swal from "sweetalert";
-import ACCOUNTS from "../constant/Accounts";
+// import ACCOUNTS from "../constant/Accounts"; //code no API
 import DEPARTMENTS from "../constant/Departments";
 import POSITIONS from "../constant/Positions";
+import { getAccounts } from "../api/GetAccountsFromAPI";
+import { addAccount } from "../api/AddAccount";
+import { updateAccount } from "../api/UpdateAccounts";
+import { removeAccount } from "../api/RemoveAccount";
 export default function Account() {
   const [modal, setModal] = useState(false);
   const [dataModal, setDataModal] = useState({ title: "", buttonName: "" });
-  const [accounts, setAccounts] = useState(ACCOUNTS);
+  // const [accounts, setAccounts] = useState(ACCOUNTS); //code no API
+  const [accounts, setAccounts] = useState([]);
   const [account, setAccount] = useState({
     id: "",
     email: "",
@@ -20,21 +25,27 @@ export default function Account() {
     positionId: "",
     createDate: "",
   });
+  useEffect(() => {
+    getAccounts().then((res) => {
+      setAccounts(res ? res : []);
+    });
+  }, []);
   const handleCreate = () => {
     setDataModal({
       title: "Create New Account",
       buttonName: "Create",
     });
-    let newId = 1;
-    accounts.forEach((ele) => {
-      if (ele.id === newId) {
-        newId++;
-      } else {
-        return;
-      }
-    });
+    // let newId = 1; //code no API
+    // accounts.forEach((ele) => {
+    //   if (ele.id === newId) {
+    //     newId++;
+    //   } else {
+    //     return;
+    //   }
+    // });
     setAccount({
-      id: newId,
+      // id: newId, //code no API
+      id: "",
       email: "",
       useName: "",
       fullName: "",
@@ -63,12 +74,16 @@ export default function Account() {
       icon: "warning",
       buttons: true,
       dangerMode: true,
-    }).then((willDelete) => {
+    }).then(async (willDelete) => {
       if (willDelete) {
-        let listAccountUpdate = accounts.filter((account) => {
-          return account.id !== id;
+        // let listAccountUpdate = accounts.filter((account) => { //code no API
+        //   return account.id !== id;
+        // });
+        // setAccounts(listAccountUpdate);
+        await removeAccount(id);
+        await getAccounts().then((res) => {
+          setAccounts(res ? res : []);
         });
-        setAccounts(listAccountUpdate);
         swal("Poof! This account has been deleted!", {
           icon: "success",
         });
@@ -77,19 +92,23 @@ export default function Account() {
       }
     });
   };
-  const receiveDataFromModal = (accountUpdate) => {
+  const receiveDataFromModal = async (accountUpdate) => {
     let index = accounts.findIndex((account) => {
       return account.id === accountUpdate.id;
     });
     if (index === -1) {
-      accounts.push(accountUpdate);
+      // accounts.push(accountUpdate); //code no API
+      await addAccount(accountUpdate);
     } else {
-      accounts[index] = accountUpdate;
+      // accounts[index] = accountUpdate; //code no API
+      await updateAccount(accountUpdate);
     }
-    setAccounts(accounts);
+    await getAccounts().then((res) => {
+      setAccounts(res ? res : []);
+    });
   };
   return (
-    <Container>
+    <Container fluid>
       <Row>
         <Col>
           <ButtonComponent
