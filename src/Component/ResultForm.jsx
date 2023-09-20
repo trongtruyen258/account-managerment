@@ -9,7 +9,7 @@ export default function ResultForm(props) {
 
   return (
     <Table responsive>
-      <thead style={{ textAlign: "center" }}>
+      <thead>
         <tr>
           <th>ID</th>
           <th>Email</th>
