@@ -19,7 +19,6 @@ const Pagination = (props) => {
     pageSize,
   });
 
-  // If there are less than 2 times in pagination range we shall not render the component
   if (currentPage === 0 || paginationRange.length < 2) {
     return null;
   }
@@ -37,46 +36,42 @@ const Pagination = (props) => {
     <ul
       className={classnames("pagination-container", { [className]: className })}
     >
-      {/* Left navigation arrow */}
       <li
         className={classnames("pagination-item", {
           disabled: currentPage === 1,
         })}
         onClick={onPrevious}
-        key={0}
+        key={"left"}
       >
         <div className="arrow left" />
       </li>
-      {paginationRange.map((pageNumber) => {
-        // If the pageItem is a DOT, render the DOTS unicode character
+      {paginationRange.map((pageNumber, index) => {
         if (pageNumber === DOTS) {
           return (
-            <li className="pagination-item dots" key={"dots"}>
+            <li key={index} className="pagination-item dots">
               &#8230;
             </li>
           );
         }
 
-        // Render our Page Pills
         return (
           <li
             className={classnames("pagination-item", {
               selected: pageNumber === currentPage,
             })}
             onClick={() => onPageChange(pageNumber)}
-            key={pageNumber}
+            key={`middle${index}`}
           >
             {pageNumber}
           </li>
         );
       })}
-      {/*  Right Navigation arrow */}
       <li
         className={classnames("pagination-item", {
           disabled: currentPage === lastPage,
         })}
         onClick={onNext}
-        key={lastPage + 1}
+        key={"right"}
       >
         <div className="arrow right" />
       </li>

@@ -6,39 +6,31 @@ import {
   ModalFooter,
   Form,
 } from "reactstrap";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputField from "./InputField";
 import SelectField from "./SelectField";
 import ButtonComponent from "./ButtonComponent";
 export default function ModalComponent(props) {
-  const { data, account, modal, toggle, listDepartment, listPosition } = props;
-  const [accountUpdate, setAccountUpdate] = useState({
-    id: "",
-    email: "",
-    useName: "",
-    fullName: "",
-    departmentId: "",
-    positionId: "",
-    createDate: "",
-  });
+  const { data, accounts, modal, toggle, listDepartment, listPosition } = props;
+  const [accountsUpdate, setAccountsUpdate] = useState([]);
   useEffect(() => {
-    setAccountUpdate(account);
-  }, [account]);
+    setAccountsUpdate(accounts);
+  }, [accounts]);
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setAccountUpdate({
-      ...accountUpdate,
-      [name]: value,
-    });
+    //edit here
+    const { name, value, id } = e.target;
+    const index = parseInt(id.charAt(id.length - 1));
+    let accountUpdate = { ...accountsUpdate[index], [name]: value };
+    accountsUpdate[index] = accountUpdate;
+    setAccountsUpdate([...accountsUpdate]);
   };
   const handleClick = () => {
-    let accountUpdated = {
-      ...accountUpdate,
-    };
+    //edit here
+    let accountsUpdated = [...accountsUpdate];
     if (data.buttonName === "Create") {
-      accountUpdated.createDate = new Date().toLocaleDateString();
+      accountsUpdated[0].createDate = new Date().toLocaleDateString();
     }
-    props.sendDataToParent(accountUpdated);
+    props.sendDataToParent(accountsUpdated);
     toggle();
   };
   return (
@@ -46,52 +38,65 @@ export default function ModalComponent(props) {
       <ModalHeader toggle={toggle}>{data.title}</ModalHeader>
       <ModalBody>
         <Form>
-          <InputField
-            id="id"
-            label="Id"
-            value={accountUpdate.id}
-            disabled={true}
-          />
-          <InputField
-            id="email"
-            label="Email"
-            value={accountUpdate.email}
-            name="email"
-            onChange={handleChange}
-            type="email"
-          />
-          <InputField
-            id="useName"
-            label="Username"
-            value={accountUpdate.useName}
-            name="useName"
-            onChange={handleChange}
-            type="text"
-          />
-          <InputField
-            id="fullName"
-            label="Full name"
-            value={accountUpdate.fullName}
-            name="fullName"
-            onChange={handleChange}
-            type="text"
-          />
-          <SelectField
-            id="departmentId"
-            label="Select a Department"
-            value={accountUpdate.departmentId}
-            onChange={handleChange}
-            type="select"
-            listOption={listDepartment}
-          />
-          <SelectField
-            id="positionId"
-            label="Select a Position"
-            value={accountUpdate.positionId}
-            onChange={handleChange}
-            type="select"
-            listOption={listPosition}
-          />
+          {accountsUpdate.map((accountUpdate, index) => {
+            return (
+              <React.Fragment key={index}>
+                {data.buttonName === "Create" ? (
+                  ""
+                ) : (
+                  <h6>Update for Username: {accountUpdate.useName}</h6>
+                )}
+                <InputField
+                  id={`id${index}`}
+                  label="Id"
+                  value={accountUpdate.id}
+                  disabled={true}
+                />
+                <InputField
+                  id={`email${index}`}
+                  label="Email"
+                  value={accountUpdate.email}
+                  name="email"
+                  onChange={handleChange}
+                  type="email"
+                />
+                <InputField
+                  id={`useName${index}`}
+                  label="Username"
+                  value={accountUpdate.useName}
+                  name="useName"
+                  onChange={handleChange}
+                  type="text"
+                />
+                <InputField
+                  id={`fullName${index}`}
+                  label="Full name"
+                  value={accountUpdate.fullName}
+                  name="fullName"
+                  onChange={handleChange}
+                  type="text"
+                />
+                <SelectField
+                  id={`departmentId${index}`}
+                  label="Select a Department"
+                  value={accountUpdate.departmentId}
+                  onChange={handleChange}
+                  type="select"
+                  listOption={listDepartment}
+                  name="departmentId"
+                />
+                <SelectField
+                  id={`positionId${index}`}
+                  label="Select a Position"
+                  value={accountUpdate.positionId}
+                  onChange={handleChange}
+                  type="select"
+                  listOption={listPosition}
+                  name="positionId"
+                />
+              </React.Fragment>
+            );
+          })}
           <ButtonComponent
             color="primary"
             name={data.buttonName}

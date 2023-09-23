@@ -18,15 +18,7 @@ export default function Account() {
   const [dataModal, setDataModal] = useState({ title: "", buttonName: "" });
   // const [accounts, setAccounts] = useState(ACCOUNTS); //code no API
   const [accounts, setAccounts] = useState([]);
-  const [account, setAccount] = useState({
-    id: "",
-    email: "",
-    useName: "",
-    fullName: "",
-    departmentId: "",
-    positionId: "",
-    createDate: "",
-  });
+  const [listAccount, setListAccount] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
   const currentTableData = useMemo(() => {
@@ -52,16 +44,18 @@ export default function Account() {
     //     return;
     //   }
     // });
-    setAccount({
-      // id: newId, //code no API
-      id: "",
-      email: "",
-      useName: "",
-      fullName: "",
-      departmentId: "",
-      positionId: "",
-      createDate: "",
-    });
+    setListAccount([
+      {
+        // id: newId, //code no API
+        id: "",
+        email: "",
+        useName: "",
+        fullName: "",
+        departmentId: "",
+        positionId: "",
+        createDate: "",
+      },
+    ]);
     toggle();
   };
   const handleEdit = (account) => {
@@ -69,7 +63,7 @@ export default function Account() {
       title: "Update Account",
       buttonName: "Update",
     });
-    setAccount(account);
+    setListAccount([account]);
     toggle();
   };
 
@@ -101,29 +95,83 @@ export default function Account() {
       }
     });
   };
-  const receiveDataFromModal = async (accountUpdate) => {
-    let index = accounts.findIndex((account) => {
-      return account.id === accountUpdate.id;
-    });
-    if (index === -1) {
-      // accounts.push(accountUpdate); //code no API
-      await addAccount(accountUpdate);
-    } else {
-      // accounts[index] = accountUpdate; //code no API
-      await updateAccount(accountUpdate);
+  const receiveDataFromModal = async (accountsUpdate) => {
+    for (const accountUpdate of accountsUpdate) {
+      let index = accounts.findIndex((account) => {
+        return account.id === accountUpdate.id;
+      });
+      if (index === -1) {
+        // accounts.push(accountUpdate); //code no API
+        await addAccount(accountUpdate);
+      } else {
+        // accounts[index] = accountUpdate; //code no API
+        await updateAccount(accountUpdate);
+      }
     }
+    //edit here
+
     await getAccounts().then((res) => {
       setAccounts(res ? res : []);
     });
   };
+  const [listSelected, setListSelected] = useState([]);
+  const receiveAccountsSelected = (listAccountSelected) => {
+    setListSelected(listAccountSelected);
+  };
+  const handleDeleteMultiple = () => {
+    swal({
+      title: "Are you sure?",
+      text: "Once deleted, you will not be able to recover this accounts!",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    }).then(async (willDelete) => {
+      if (willDelete) {
+        for (const accountDelete of listSelected) {
+          await removeAccount(accountDelete.id);
+        }
+
+        await getAccounts().then((res) => {
+          setAccounts(res ? res : []);
+        });
+        swal("Poof! This accounts has been deleted!", {
+          icon: "success",
+        });
+      } else {
+        swal("This accounts is safe!");
+      }
+    });
+  };
+  const handleEditMultiple = () => {
+    setDataModal({
+      title: "Update Accounts Selected",
+      buttonName: "Update",
+    });
+    setListAccount(listSelected);
+    toggle();
+  };
   return (
     <Container fluid>
       <Row>
-        <Col>
+        <Col lg="auto">
           <ButtonComponent
             name="Create New Account"
             color="primary"
             handleClick={handleCreate}
+          />
+        </Col>
+        <Col lg="auto">
+          <ButtonComponent
+            name="Delete Accounts selected"
+            color="danger"
+            handleClick={handleDeleteMultiple}
+          />
+        </Col>
+        <Col lg="auto">
+          <ButtonComponent
+            name="Edit Accounts selected"
+            color="danger"
+            handleClick={handleEditMultiple}
           />
         </Col>
       </Row>
@@ -137,6 +185,7 @@ export default function Account() {
           listAccount={currentTableData}
           handleClickEdit={handleEdit}
           sendDataToParent={receiveDataFromHandleDelete}
+          sendAccountDelete={receiveAccountsSelected}
         />
         <Pagination
           className="pagination-bar"
@@ -148,7 +197,7 @@ export default function Account() {
       </Row>
       <ModalComponent
         data={dataModal}
-        account={account}
+        accounts={listAccount}
         modal={modal}
         toggle={toggle}
         sendDataToParent={receiveDataFromModal}
