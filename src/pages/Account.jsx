@@ -2,15 +2,17 @@ import { Col, Container, Row } from "reactstrap";
 import ResultForm from "../Component/ResultForm";
 import ButtonComponent from "../Component/ButtonComponent";
 import ModalComponent from "../Component/ModalComponent";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import swal from "sweetalert";
 // import ACCOUNTS from "../constant/Accounts"; //code no API
 import DEPARTMENTS from "../constant/Departments";
 import POSITIONS from "../constant/Positions";
-import { getAccounts } from "../api/GetAccountsFromAPI";
-import { addAccount } from "../api/AddAccount";
-import { updateAccount } from "../api/UpdateAccounts";
-import { removeAccount } from "../api/RemoveAccount";
+import { getAccounts } from "../api/account/GetAccountsFromAPI";
+import { addAccount } from "../api/account/AddAccount";
+import { updateAccount } from "../api/account/UpdateAccounts";
+import { removeAccount } from "../api/account/RemoveAccount";
+import Pagination from "../pagination/Pagination";
+let PageSize = 8;
 export default function Account() {
   const [modal, setModal] = useState(false);
   const [dataModal, setDataModal] = useState({ title: "", buttonName: "" });
@@ -25,6 +27,13 @@ export default function Account() {
     positionId: "",
     createDate: "",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const currentTableData = useMemo(() => {
+    const firstPageIndex = (currentPage - 1) * PageSize;
+    const lastPageIndex = firstPageIndex + PageSize;
+    return accounts.slice(firstPageIndex, lastPageIndex);
+  }, [currentPage, accounts]);
   useEffect(() => {
     getAccounts().then((res) => {
       setAccounts(res ? res : []);
@@ -125,9 +134,16 @@ export default function Account() {
         <ResultForm
           listDepartment={DEPARTMENTS}
           listPosition={POSITIONS}
-          listAccount={accounts}
+          listAccount={currentTableData}
           handleClickEdit={handleEdit}
           sendDataToParent={receiveDataFromHandleDelete}
+        />
+        <Pagination
+          className="pagination-bar"
+          currentPage={currentPage}
+          totalCount={accounts.length}
+          pageSize={PageSize}
+          onPageChange={(page) => setCurrentPage(page)}
         />
       </Row>
       <ModalComponent
