@@ -1,6 +1,5 @@
-import { Table } from "reactstrap";
+import { Input, Table } from "reactstrap";
 import ButtonComponent from "./ButtonComponent";
-import InputField from "./InputField";
 import { useEffect, useState } from "react";
 
 export default function ResultForm(props) {
@@ -32,21 +31,28 @@ export default function ResultForm(props) {
     }
   };
   const handleChange = (account) => {
+    let accountsSelected = [];
     if (listAccountSelected.includes(account)) {
-      let accountsSelected = listAccountSelected.filter((accountDel) => {
+      accountsSelected = listAccountSelected.filter((accountDel) => {
         return accountDel.id !== account.id;
       });
       setListAccountSelected(accountsSelected);
     } else {
-      setListAccountSelected([...listAccountSelected, account]);
+      accountsSelected = [...listAccountSelected, account];
+      setListAccountSelected(accountsSelected);
+    }
+    if (accountsSelected.length === listAccount.length) {
+      setSelectAll(true);
+    } else {
+      setSelectAll(false);
     }
   };
   return (
-    <Table responsive>
+    <Table responsive striped>
       <thead>
         <tr>
           <th>
-            <InputField
+            <Input
               type="checkbox"
               onChange={handleSelectAll}
               checked={selectAll}
@@ -69,7 +75,7 @@ export default function ResultForm(props) {
           return (
             <tr key={account.id}>
               <td>
-                <InputField
+                <Input
                   type="checkbox"
                   onChange={() => {
                     handleChange(account);
