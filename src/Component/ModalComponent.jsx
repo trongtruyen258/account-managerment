@@ -1,11 +1,4 @@
-import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Form,
-} from "reactstrap";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Form } from "reactstrap";
 import React, { useEffect, useState } from "react";
 import InputField from "./InputField";
 import SelectField from "./SelectField";
@@ -14,24 +7,24 @@ export default function ModalComponent(props) {
   const { data, accounts, modal, toggle, listDepartment, listPosition } = props;
   const [accountsUpdate, setAccountsUpdate] = useState([]);
   useEffect(() => {
-    setAccountsUpdate(accounts);
+    setAccountsUpdate([...accounts]);
   }, [accounts]);
-  const handleChange = (e) => {
-    //edit here
-    const { name, value, id } = e.target;
-    const index = parseInt(id.charAt(id.length - 1));
+  const handleChange = (e, index) => {
+    const { name, value } = e.target;
     let accountUpdate = { ...accountsUpdate[index], [name]: value };
     accountsUpdate[index] = accountUpdate;
     setAccountsUpdate([...accountsUpdate]);
   };
   const handleClick = () => {
-    //edit here
     let accountsUpdated = [...accountsUpdate];
     if (data.buttonName === "Create") {
       accountsUpdated[0].createDate = new Date().toLocaleDateString();
     }
     props.sendDataToParent(accountsUpdated);
     toggle();
+  };
+  const handleClickReset = () => {
+    setAccountsUpdate([...accounts]);
   };
   return (
     <Modal isOpen={modal} toggle={toggle}>
@@ -47,49 +40,59 @@ export default function ModalComponent(props) {
                   <h6>Update for Username: {accountUpdate.useName}</h6>
                 )}
                 <InputField
-                  id={`id${index}`}
+                  id={`id`}
                   label="Id"
                   value={accountUpdate.id}
                   disabled={true}
                 />
                 <InputField
-                  id={`email${index}`}
+                  id={`email`}
                   label="Email"
                   value={accountUpdate.email}
                   name="email"
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    handleChange(e, index);
+                  }}
                   type="email"
                 />
                 <InputField
-                  id={`useName${index}`}
+                  id={`useName`}
                   label="Username"
                   value={accountUpdate.useName}
                   name="useName"
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    handleChange(e, index);
+                  }}
                   type="text"
                 />
                 <InputField
-                  id={`fullName${index}`}
+                  id={`fullName`}
                   label="Full name"
                   value={accountUpdate.fullName}
                   name="fullName"
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    handleChange(e, index);
+                  }}
                   type="text"
                 />
                 <SelectField
-                  id={`departmentId${index}`}
+                  id={`departmentId`}
                   label="Select a Department"
                   value={accountUpdate.departmentId}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    handleChange(e, index);
+                  }}
                   type="select"
                   listOption={listDepartment}
                   name="departmentId"
                 />
                 <SelectField
-                  id={`positionId${index}`}
+                  id={`positionId`}
                   label="Select a Position"
                   value={accountUpdate.positionId}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    handleChange(e, index);
+                  }}
                   type="select"
                   listOption={listPosition}
                   name="positionId"
@@ -102,9 +105,11 @@ export default function ModalComponent(props) {
             name={data.buttonName}
             handleClick={handleClick}
           />{" "}
-          <Button color="danger" type="reset">
-            Reset
-          </Button>
+          <ButtonComponent
+            color="danger"
+            name="Reset"
+            handleClick={handleClickReset}
+          />
         </Form>
       </ModalBody>
       <ModalFooter>
